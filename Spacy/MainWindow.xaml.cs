@@ -15,6 +15,8 @@ namespace Spacy
     {
         private const int IndicatorWidth = 300;
         public ObservableCollection<DiskStatus> DiskStatus { get; set; }
+        public string HeaderText { get; set; }
+        public DiskStatus OverallStatus { get; set; }
 
         public MainWindow()
         {
@@ -25,6 +27,8 @@ namespace Spacy
             try
             {
                 CreateDiskStatus();
+                CreateOverallStatus();
+                SetHeaderText();
             }
             catch (Exception ex)
             {
@@ -41,6 +45,29 @@ namespace Spacy
             DataContext = this;
         }
 
+        private void CreateOverallStatus()
+        {
+            var overall = new DiskStatus();
+            foreach (var status in DiskStatus)
+            {
+                overall.AvailableFreeSpaceGb += status.AvailableFreeSpaceGb;
+                overall.TotalSpaceGb += status.TotalSpaceGb;
+                overall.DriveName = "Overall status";
+                overall.DriveLetter = String.Empty;
+                overall.FreeSpaceIndicator = new Rectangle {Fill = Brushes.LightGray};
+                overall.TotalSpaceIndicator = new Rectangle();
+            }
+            SetSpaceIndicators(overall);
+
+            OverallStatus = overall;
+        }
+
+        private void SetHeaderText()
+        {
+            var machineName = Environment.MachineName;
+            HeaderText = "Disk status for " + machineName.ToLower();
+        }
+
         private void CreateDiskStatus()
         {
             var drives = GetDrives().ToList();
@@ -50,19 +77,26 @@ namespace Spacy
                 {
                     AvailableFreeSpaceGb = drive.AvailableFreeSpace.ToGb(),
                     DriveName = drive.VolumeLabel,
-                    DriveLetter = drive.Name,
+                    DriveLetter = drive.Name.Substring(0, 2),
                     TotalSpaceGb = drive.TotalSize.ToGb(),
                     FreeSpaceIndicator = new Rectangle { Fill = Brushes.LightGray },
                     TotalSpaceIndicator = new Rectangle()
                 };
 
-                var freeSpaceTreshold = int.Parse(ConfigurationManager.AppSettings["FreeSpaceWarningThreshold"]);
-                diskStatus.TotalSpaceIndicator.Width = IndicatorWidth * diskStatus.UsedSpacePercentage / 100;
-                diskStatus.TotalSpaceIndicator.Fill = diskStatus.FreeSpacePercentage < freeSpaceTreshold ? Brushes.Red : Brushes.LimeGreen;
-                diskStatus.FreeSpaceIndicator.Width = IndicatorWidth * diskStatus.FreeSpacePercentage / 100;
+                SetSpaceIndicators(diskStatus);
 
                 DiskStatus.Add(diskStatus);
             }
+        }
+
+        private static void SetSpaceIndicators(DiskStatus diskStatus)
+        {
+            var freeSpaceTreshold = int.Parse(ConfigurationManager.AppSettings["FreeSpaceWarningThreshold"]);
+            diskStatus.TotalSpaceIndicator.Width = IndicatorWidth*diskStatus.UsedSpacePercentage/100;
+            diskStatus.TotalSpaceIndicator.Fill = diskStatus.FreeSpacePercentage < freeSpaceTreshold
+                ? Brushes.Red
+                : Brushes.LimeGreen;
+            diskStatus.FreeSpaceIndicator.Width = IndicatorWidth*diskStatus.FreeSpacePercentage/100;
         }
 
         private static IEnumerable<DriveInfo> GetDrives()

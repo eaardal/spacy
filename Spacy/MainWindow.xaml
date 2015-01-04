@@ -7,13 +7,16 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <ItemsControl Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Path=DiskStatus}">
+        <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Path=HeaderText}"
+                   FontSize="20" Margin="20"></TextBlock>
+        <ItemsControl Grid.Row="2" Grid.Column="0" ItemsSource="{Binding Path=DiskStatus}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel Width="770"></WrapPanel>
+                    <WrapPanel Background="White" HorizontalAlignment="Center" VerticalAlignment="Top"></WrapPanel>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
@@ -52,5 +55,37 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+
+        <Border DataContext="{Binding Path=OverallStatus}" Grid.Row="1" CornerRadius="2" Margin="3" Padding="5" 
+                Background="#ffffff" BorderBrush="DarkGray" BorderThickness="1" HorizontalAlignment="Center">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding Path=DriveName}" Margin="3" 
+                                           FontSize="16"></TextBlock>
+                    <TextBlock Grid.Column="1" Text="{Binding Path=DriveLetter}" Margin="3" 
+                                           HorizontalAlignment="Right"></TextBlock>
+                </Grid>
+                <TextBlock Grid.Row="1" Text="{Binding Path=AvailableFreeSpaceText}" Margin="3"></TextBlock>
+                <DockPanel Grid.Row="2">
+                    <Rectangle Width="{Binding Path=TotalSpaceIndicator.Width}" 
+                                           Fill="{Binding Path=TotalSpaceIndicator.Fill}"
+                                           Height="25" Margin="3,3,0,3">
+                    </Rectangle>
+                    <Rectangle Width="{Binding Path=FreeSpaceIndicator.Width}" 
+                                           Fill="{Binding Path=FreeSpaceIndicator.Fill}"
+                                           Height="25" Margin="0,3,3,3">
+                    </Rectangle>
+                </DockPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
