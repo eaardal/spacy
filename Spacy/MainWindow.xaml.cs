@@ -71,22 +71,29 @@ namespace Spacy
         private void CreateDiskStatus()
         {
             var drives = GetDrives().ToList();
-            foreach (var drive in drives)
+#if DEBUG
+            for (int i = 0; i < 2; i++)
             {
-                var diskStatus = new DiskStatus
+#endif
+                foreach (var drive in drives)
                 {
-                    AvailableFreeSpaceGb = drive.AvailableFreeSpace.ToGb(),
-                    DriveName = drive.VolumeLabel,
-                    DriveLetter = drive.Name.Substring(0, 2),
-                    TotalSpaceGb = drive.TotalSize.ToGb(),
-                    FreeSpaceIndicator = new Rectangle { Fill = Brushes.LightGray },
-                    TotalSpaceIndicator = new Rectangle()
-                };
+                    var diskStatus = new DiskStatus
+                    {
+                        AvailableFreeSpaceGb = drive.AvailableFreeSpace.ToGb(),
+                        DriveName =  String.IsNullOrEmpty(drive.VolumeLabel) ? "[No name]" : drive.VolumeLabel,
+                        DriveLetter = drive.Name.Substring(0, 2),
+                        TotalSpaceGb = drive.TotalSize.ToGb(),
+                        FreeSpaceIndicator = new Rectangle { Fill = Brushes.LightGray },
+                        TotalSpaceIndicator = new Rectangle()
+                    };
 
-                SetSpaceIndicators(diskStatus);
+                    SetSpaceIndicators(diskStatus);
 
-                DiskStatus.Add(diskStatus);
+                    DiskStatus.Add(diskStatus);
+                }    
+#if DEBUG
             }
+#endif   
         }
 
         private static void SetSpaceIndicators(DiskStatus diskStatus)
