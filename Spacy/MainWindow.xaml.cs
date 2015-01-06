@@ -64,8 +64,7 @@ namespace Spacy
 
         private void SetHeaderText()
         {
-            var machineName = Environment.MachineName;
-            HeaderText = "Disk status for " + machineName.ToLower();
+            HeaderText = "Disk status for " + Environment.MachineName.ToLower();
         }
 
         private void CreateDiskStatus()

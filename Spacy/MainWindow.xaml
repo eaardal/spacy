@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Spacy.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Spacy" Width="800" Height="660">
+        Title="Spacy" Width="800" Height="770">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -38,8 +38,13 @@
                                            FontSize="16"></TextBlock>
                                 <TextBlock Grid.Column="1" Text="{Binding Path=DriveLetter}" Margin="3" 
                                            HorizontalAlignment="Right"></TextBlock>
-                            </Grid> 
-                            <TextBlock Grid.Row="1" Text="{Binding Path=AvailableFreeSpaceText}" Margin="3"></TextBlock>
+                            </Grid>
+                            
+                            <StackPanel Grid.Row="1" >
+                                <TextBlock Text="{Binding Path=AvailableFreeSpaceText}" Margin="3"></TextBlock>
+                                <TextBlock Text="{Binding Path=UsedSpaceText}" Margin="3"></TextBlock>
+                            </StackPanel>
+                            
                             <DockPanel Grid.Row="2">
                                 <Rectangle Width="{Binding Path=TotalSpaceIndicator.Width}" 
                                            Fill="{Binding Path=TotalSpaceIndicator.Fill}"
@@ -74,7 +79,10 @@
                     <TextBlock Grid.Column="1" Text="{Binding Path=DriveLetter}" Margin="3" 
                                            HorizontalAlignment="Right"></TextBlock>
                 </Grid>
-                <TextBlock Grid.Row="1" Text="{Binding Path=AvailableFreeSpaceText}" Margin="3"></TextBlock>
+                <StackPanel Grid.Row="1" >
+                    <TextBlock Text="{Binding Path=AvailableFreeSpaceText}" Margin="3"></TextBlock>
+                    <TextBlock Text="{Binding Path=UsedSpaceText}" Margin="3"></TextBlock>
+                </StackPanel>
                 <DockPanel Grid.Row="2">
                     <Rectangle Width="{Binding Path=TotalSpaceIndicator.Width}" 
                                            Fill="{Binding Path=TotalSpaceIndicator.Fill}"
