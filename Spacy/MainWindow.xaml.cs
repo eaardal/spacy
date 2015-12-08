@@ -17,10 +17,13 @@ namespace Spacy
         public ObservableCollection<DiskStatus> DiskStatus { get; set; }
         public string HeaderText { get; set; }
         public DiskStatus OverallStatus { get; set; }
+        public WindowSize WindowSize { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+
+            Bootstrapper.Configure();
 
             DiskStatus = new ObservableCollection<DiskStatus>();
 
@@ -29,17 +32,13 @@ namespace Spacy
                 CreateDiskStatus();
                 CreateOverallStatus();
                 SetHeaderText();
+                WindowSize = WindowSize.GetWindowSize(DiskStatus.Count);
             }
             catch (Exception ex)
             {
-                const string cs = "Spacy";
-                if (!EventLog.SourceExists(cs))
-                    EventLog.CreateEventSource(cs, "Application");
-
-                var msg = String.Format("{0}:\n\n{1}", ex.Message, ex.StackTrace);
-                EventLog.WriteEntry(cs, msg, EventLogEntryType.Error);
-
-                MessageBox.Show("An error occurred. This was also written to windows event viewer\n\n" + msg, "Error", MessageBoxButton.OK);
+                var msg = string.Format("{0}:\n\n{1}", ex.Message, ex.StackTrace);
+                EventLog.WriteEntry(Bootstrapper.EventLogIdentifier, msg, EventLogEntryType.Error);
+                MessageBox.Show("An error occurred. This was also written to windows event viewer\n\n" + msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             DataContext = this;
@@ -48,15 +47,17 @@ namespace Spacy
         private void CreateOverallStatus()
         {
             var overall = new DiskStatus();
+
             foreach (var status in DiskStatus)
             {
                 overall.AvailableFreeSpaceGb += status.AvailableFreeSpaceGb;
                 overall.TotalSpaceGb += status.TotalSpaceGb;
                 overall.DriveName = "Overall status";
-                overall.DriveLetter = String.Empty;
+                overall.DriveLetter = string.Empty;
                 overall.FreeSpaceIndicator = new Rectangle {Fill = Brushes.LightGray};
                 overall.TotalSpaceIndicator = new Rectangle();
             }
+
             SetSpaceIndicators(overall);
 
             OverallStatus = overall;
@@ -70,8 +71,11 @@ namespace Spacy
         private void CreateDiskStatus()
         {
             var drives = GetDrives().ToList();
+
+// If in debug mode, create more drives to test with
 #if DEBUG
-            for (int i = 0; i < 2; i++)
+            drives = drives.Take(1).ToList();
+            for (var i = 0; i < 21; i++)
             {
 #endif
                 foreach (var drive in drives)
@@ -79,7 +83,7 @@ namespace Spacy
                     var diskStatus = new DiskStatus
                     {
                         AvailableFreeSpaceGb = drive.AvailableFreeSpace.ToGb(),
-                        DriveName =  String.IsNullOrEmpty(drive.VolumeLabel) ? "[No name]" : drive.VolumeLabel,
+                        DriveName =  string.IsNullOrEmpty(drive.VolumeLabel) ? "[No name]" : drive.VolumeLabel,
                         DriveLetter = drive.Name.Substring(0, 2),
                         TotalSpaceGb = drive.TotalSize.ToGb(),
                         FreeSpaceIndicator = new Rectangle { Fill = Brushes.LightGray },
@@ -97,7 +101,7 @@ namespace Spacy
 
         private static void SetSpaceIndicators(DiskStatus diskStatus)
         {
-            var freeSpaceTreshold = int.Parse(ConfigurationManager.AppSettings["FreeSpaceWarningThreshold"]);
+            var freeSpaceTreshold = Config.FreeSpaceWarningThresholdInGb;
             diskStatus.TotalSpaceIndicator.Width = IndicatorWidth*diskStatus.UsedSpacePercentage/100;
             diskStatus.TotalSpaceIndicator.Fill = diskStatus.FreeSpacePercentage < freeSpaceTreshold
                 ? Brushes.Red
@@ -107,11 +111,9 @@ namespace Spacy
 
         private static IEnumerable<DriveInfo> GetDrives()
         {
-            var getManually = bool.Parse(ConfigurationManager.AppSettings["GetDrivesManually"]);
-            if (getManually)
+            if (Config.DrivesFromAppConfig)
             {
-                var letters = ConfigurationManager.AppSettings["Drives"].ToUpper().Split(',');
-                return letters.Select(l => new DriveInfo(l));
+                return Config.DriveLetters.Select(name => new DriveInfo(name));
             }
             return DriveInfo.GetDrives().Where(d => d.DriveFormat == "NTFS");
         }

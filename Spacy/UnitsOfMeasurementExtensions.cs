@@ -1,6 +1,6 @@
 ﻿namespace Spacy
 {
-    public static class Extensions
+    public static class UnitsOfMeasurementExtensions
     {
         public static double ToMb(this long bytes)
         {
