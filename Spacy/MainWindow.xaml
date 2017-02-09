@@ -2,7 +2,6 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Spacy" WindowStartupLocation="CenterScreen" WindowState="{Binding Path=WindowSize.StartupState}" Height="{Binding Path=WindowSize.Height, Mode=TwoWay}" Width="{Binding Path=WindowSize.Width, Mode=TwoWay}">
-        <!--Title="Spacy" Width="800" Height="770">-->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>

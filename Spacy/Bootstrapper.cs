@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 
 namespace Spacy
@@ -10,8 +11,15 @@ namespace Spacy
         {
             Config.Load();
 
-            if (!EventLog.SourceExists(EventLogIdentifier))
-                EventLog.CreateEventSource(EventLogIdentifier, "Application");
+            try
+            {
+                if (!EventLog.SourceExists(EventLogIdentifier))
+                    EventLog.CreateEventSource(EventLogIdentifier, "Application");
+            }
+            catch (Exception)
+            {
+                   
+            }
         }
     }
 }
